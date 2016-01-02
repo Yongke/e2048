@@ -1,0 +1,12 @@
+{application, e2048,
+ [
+  {description, "Simple 2048 AI explorer"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { e2048_app, []}},
+  {env, []}
+ ]}.
