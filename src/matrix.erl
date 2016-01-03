@@ -1,7 +1,7 @@
 -module(matrix).
 
 -export([init/0, to_list/1, from_list/1, feed/1, transpose/1,
-         to_string/1, count_zero/1,
+         to_string/1, count_zero/1, score/1,
          move_left/1, move_right/1, move_up/1, move_down/1]).
 
 -define(SIZE, 4).
@@ -53,7 +53,7 @@ feed(M) ->
     {I, Val} = insert_random(length(L1)),
     {Idx, _} = lists:nth(I, L1),
     New = lists:map(
-            fun({K, V}) when K =:= Idx->
+            fun({K, _}) when K =:= Idx->
                     {K, Val};
                (Keep) ->
                     Keep
@@ -97,11 +97,14 @@ count_zero(M) ->
              end,
              matrix:to_list(M))).
 
+score(_M) ->
+    100.
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
 init_random(Len, Cnt) ->
-    Ts = {_, _, MicroSec} = now(),
+    Ts = now(),
     random:seed(Ts),
     random_aux(Len, Cnt, []).
 
@@ -114,7 +117,7 @@ insert_random(Len) ->
           end,
     {random:uniform(Len), Val}.
 
-random_aux(Len, Cnt, Acc) when Cnt =:= 0 ->
+random_aux(_, Cnt, Acc) when Cnt =:= 0 ->
     lists:reverse(Acc);
 random_aux(Len, Cnt, Acc) ->
     R = random:uniform(Len),
