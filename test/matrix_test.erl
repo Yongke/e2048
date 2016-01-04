@@ -47,14 +47,14 @@ move_test() ->
                  matrix:move_up(M)),
     ?assertEqual([[4,4,4,2],[4,4,0,4],[0,0,0,0],[0,0,0,0]],
                  matrix:move_up(M1)),
-    ?assertThrow(can_not_move, matrix:move_up(M2)),
+    ?assertEqual(can_not_move, matrix:move_up(M2)),
 
 
     ?assertEqual([[0,0,0,0],[0,0,0,0],[0,0,0,0],[2,2,2,0]],
                  matrix:move_down(M)),
     ?assertEqual([[0,0,0,0],[0,0,0,0],[4,4,0,2],[4,4,4,4]],
                  matrix:move_down(M1)),
-    ?assertThrow(can_not_move, matrix:move_down(M2)),
+    ?assertEqual(can_not_move, matrix:move_down(M2)),
     
     ok.
 
