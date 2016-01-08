@@ -126,13 +126,13 @@ count_zero(M) ->
 score(can_not_move) ->
     0;
 score(M) ->
-    S = case count_zero(M) of
-            Cnt when Cnt > 2 ->
-                2;
-            _ ->
-                3
-        end,
-    next_steps_score(M, S).
+    %% S = case count_zero(M) of
+    %%         Cnt when Cnt > 2 ->
+    %%             2;
+    %%         _ ->
+    %%             4
+    %%     end,
+    next_steps_score(M, 2).
         
 next_steps_score(M0, 0) ->
     score_aux(M0);
