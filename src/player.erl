@@ -28,7 +28,6 @@ play(M, Cnt) ->
             play(BestM1, Cnt - 1)
     end.
 
-
 format_output(MoveTag, M) ->
     io:format("~s~n~s~n", [MoveTag, matrix:to_string(M)]).
 
