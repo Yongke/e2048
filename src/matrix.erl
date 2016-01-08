@@ -8,16 +8,11 @@
 -define(ELEM_CNT, ?SIZE * ?SIZE).
 -define(INIT_NUMBER_CNT, 3).
 
--define(WEIGHTS, [
-                  [[0.135759, 0.121925, 0.102812, 0.099937],
-                   [0.0997992, 0.0888405, 0.076711, 0.0724143],
-                   [0.060654, 0.0562579, 0.037116, 0.0161889],
-                   [0.0125498, 0.00992495, 0.00575871, 0.00335193]],
-                  [[0.135759, 0.0997992, 0.060654, 0.0125498],
-                   [0.121925, 0.0888405, 0.0562579, 0.00992495],
-                   [0.102812, 0.076711, 0.037116, 0.00575871],
-                   [0.099937, 0.0724143, 0.0161889, 0.00335193]]
-                 ]).
+-define(WEIGHT, 
+        [0.135759, 0.121925, 0.102812, 0.099937,
+         0.0997992, 0.0888405, 0.076711, 0.0724143,
+         0.060654, 0.0562579, 0.037116, 0.0161889,
+         0.0125498, 0.00992495, 0.00575871, 0.00335193]).
 
 %%%===================================================================
 %%% API
@@ -131,51 +126,52 @@ count_zero(M) ->
 score(can_not_move) ->
     0;
 score(M) ->
-    next_steps_score(M, 2).
-
-next_steps_score(_, 0) ->
-    0;
+    S = case count_zero(M) of
+            Cnt when Cnt > 2 ->
+                2;
+            _ ->
+                3
+        end,
+    next_steps_score(M, S).
+        
+next_steps_score(M0, 0) ->
+    score_aux(M0);
 next_steps_score(M0, Step) ->
     AllM = possible_feeds(M0),
-    SAll = lists:foldl(
-             fun(M, AllAcc) ->
-                     NextAllM = [move_left(M), move_right(M), move_up(M), move_down(M)],
-                     NextAllM1 = lists:filter(
-                                   fun(can_not_move) -> false;
-                                      (_) -> true
-                                   end, NextAllM),
-                     case NextAllM1 of
-                         [] ->
-                             AllAcc;
-                         _ ->
-                             S = pmap(
-                                   fun(NewM) ->
-                                           score_aux(NewM) + next_steps_score(NewM, Step - 1)
-                                   end,
-                                   NextAllM1),
-                             S1 = hd(lists:reverse(lists:sort(S))),
-                             AllAcc + S1
-                     end
-             end,
-             0,
-             AllM),
-    SAll / (2 * length(AllM)).
+    {SAll, AllCnt1} =
+        lists:foldl(
+          fun(M, {AllAcc, AllCnt}) ->
+                  NextAllM = [move_left(M), move_right(M), move_up(M), move_down(M)],
+                  NextAllM1 = lists:filter(
+                                fun(can_not_move) -> false;
+                                   (_) -> true
+                                end, NextAllM),
+                  case NextAllM1 of
+                      [] ->
+                          {AllAcc, AllCnt};
+                      _ ->
+                          S = pmap(
+                                fun(NewM) ->
+                                        next_steps_score(NewM, Step - 1)
+                                end,
+                                NextAllM1),
+                          S1 = hd(lists:reverse(lists:sort(S))),
+                          {AllAcc + S1, AllCnt + 1}
+                  end
+          end,
+          {0, 0},
+          AllM),
+    (score_aux(M0) + SAll) /  (AllCnt1 + 1).
 
 score_aux(M) ->
-    lists:max(
-      lists:map(
-        fun(Weight) ->
-                Ml = to_list(M),
-                L = lists:zip(Ml, to_list(Weight)),
-                Ws = lists:foldl(
-                       fun({E, W}, Acc) ->
-                               Acc + E * W
-                       end,
-                       0, L),
-                Ws
-        end,
-        ?WEIGHTS)).
-
+    Ml = to_list(M),
+    L = lists:zip(Ml, ?WEIGHT),
+    lists:foldl(
+      fun({E, W}, Acc) ->
+              Acc + E * W
+      end,
+      0, L).
+        
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
